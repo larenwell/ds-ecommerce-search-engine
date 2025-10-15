@@ -51,23 +51,20 @@ data/
 *.tsv
 *.parquet
 
-# Results (exclude large files but keep configs and metrics)
-outputs/
-
 # Logs (only root level logs, experiment logs are tracked)
 logs/
 *.log
 
-# Experiment results (keep structure but exclude large files)
+# Experiment results - only include configs and metrics
 results/experiment_*/
-!results/experiment_*/experiment_summary.json
-!results/experiment_*/metrics/
 !results/experiment_*/configs/
-!results/experiment_*/search_results/
-!results/experiment_*/logs/
-!results/experiment_*/models/*.json
-# Exclude large model files
-results/experiment_*/models/*.pkl
+!results/experiment_*/metrics/
+# Exclude everything else from experiments
+results/experiment_*/search_results/
+results/experiment_*/logs/
+results/experiment_*/models/
+results/experiment_*/plots/
+results/experiment_*/experiment_summary.json
 
 # Model files
 *.pt
