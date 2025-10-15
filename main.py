@@ -155,9 +155,14 @@ def main():
     # Parse arguments
     args = parse_args()
     
-    # Configure logging
+    # Configure logging level (will be set up by ResultsManager if saving results)
     config.logging.level = args.log_level
-    config.setup_logging()
+    
+    # Setup basic logging (will be overridden by ResultsManager if used)
+    from loguru import logger
+    import sys
+    logger.remove()
+    logger.add(sys.stderr, level=config.logging.level, format=config.logging.format, colorize=True)
     
     logger.info("="*80)
     logger.info("E-COMMERCE SEARCH ENGINE")

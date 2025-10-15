@@ -55,9 +55,20 @@ data/
 results/
 outputs/
 
-# Logs
+# Logs (only root level logs, experiment logs are tracked)
 logs/
 *.log
+
+# Experiment results (keep structure but exclude large files)
+results/experiment_*/
+!results/experiment_*/experiment_summary.json
+!results/experiment_*/metrics/
+!results/experiment_*/configs/
+!results/experiment_*/search_results/
+!results/experiment_*/logs/
+!results/experiment_*/models/*.json
+# Exclude large model files
+results/experiment_*/models/*.pkl
 
 # Model files
 *.pt

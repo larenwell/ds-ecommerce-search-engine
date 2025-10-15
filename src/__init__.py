@@ -13,6 +13,7 @@ from .evaluation import MetricsCalculator, WeightedMetricsCalculator
 from .pipeline import SearchPipeline
 from .data_loader import DataLoader
 from .config import config
+from .results_manager import ResultsManager
 
 __all__ = [
     "BaseRetriever",
@@ -24,5 +25,6 @@ __all__ = [
     "WeightedMetricsCalculator",
     "SearchPipeline",
     "DataLoader",
+    "ResultsManager",
     "config",
 ]

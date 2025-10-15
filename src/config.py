@@ -148,7 +148,7 @@ class LoggingConfig(BaseModel):
     )
     log_file: str = Field(
         default="logs/search_engine.log", 
-        description="Path to log file"
+        description="Path to log file (relative to experiment dir if available)"
     )
     rotation: str = Field(
         default="500 MB", 
@@ -172,11 +172,14 @@ class Config(BaseModel):
     evaluation: EvaluationConfig = Field(default_factory=EvaluationConfig)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
     
-    def setup_logging(self) -> None:
+    def setup_logging(self, experiment_dir: Path = None) -> None:
         """
         Setup loguru logging with current configuration.
         
         Configures both console and file logging with rotation and retention.
+        
+        Args:
+            experiment_dir: Optional experiment directory for logs
         """
         # Remove default handler
         logger.remove()
@@ -189,8 +192,15 @@ class Config(BaseModel):
             colorize=True
         )
         
-        # Add file handler with rotation
-        log_path = Path(self.logging.log_file)
+        # Determine log file path
+        if experiment_dir:
+            # Use experiment directory for logs
+            log_path = experiment_dir / "logs" / "search_engine.log"
+        else:
+            # Use default logs directory
+            log_path = Path(self.logging.log_file)
+        
+        # Create logs directory if it doesn't exist
         log_path.parent.mkdir(parents=True, exist_ok=True)
         
         logger.add(

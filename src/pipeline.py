@@ -19,6 +19,7 @@ from .models import BaseRetriever
 from .evaluation import MetricsCalculator, WeightedMetricsCalculator
 from .data_loader import DataLoader
 from .config import config
+from .results_manager import ResultsManager
 
 
 class SearchPipeline:
@@ -36,7 +37,8 @@ class SearchPipeline:
     def __init__(
         self,
         retriever: Optional[BaseRetriever] = None,
-        data_dir: Path = None
+        data_dir: Path = None,
+        save_results: bool = True
     ):
         """
         Initialize search pipeline.
@@ -44,9 +46,11 @@ class SearchPipeline:
         Args:
             retriever: Retriever instance (if None, will need to call set_retriever)
             data_dir: Directory containing data files
+            save_results: Whether to automatically save results
         """
         self.retriever = retriever
         self.data_dir = data_dir or config.data.data_dir
+        self.save_results = save_results
         
         # Initialize data loader
         self.data_loader = DataLoader(self.data_dir)
@@ -59,6 +63,9 @@ class SearchPipeline:
         # Evaluators
         self.metrics_calculator = MetricsCalculator()
         self.weighted_metrics_calculator = WeightedMetricsCalculator()
+        
+        # Results manager
+        self.results_manager = ResultsManager() if save_results else None
         
         logger.info(f"SearchPipeline initialized with data_dir: {self.data_dir}")
     
@@ -359,10 +366,67 @@ class SearchPipeline:
         # Print results
         self.print_results(results)
         
+        # Save results if enabled
+        if self.save_results and self.results_manager:
+            self._save_pipeline_results(results)
+        
         logger.info("Pipeline execution completed")
         
         return {
             "metrics": results,
             "query_df": self.query_df,
-            "retriever": self.retriever
+            "retriever": self.retriever,
+            "experiment_path": str(self.results_manager.experiment_dir) if self.results_manager else None
         }
+    
+    def _save_pipeline_results(self, results: Dict[str, Any]) -> None:
+        """
+        Save all pipeline results using ResultsManager.
+        
+        Args:
+            results: Dictionary containing metrics and results
+        """
+        try:
+            logger.info("Saving pipeline results...")
+            
+            # Save model
+            if self.retriever and hasattr(self.retriever, 'is_fitted') and self.retriever.is_fitted:
+                model_name = f"{self.retriever.__class__.__name__}_{self.results_manager.experiment_id}"
+                model_metadata = {
+                    'retriever_type': self.retriever.__class__.__name__,
+                    'top_k': getattr(self.retriever, 'top_k', None),
+                    'is_fitted': self.retriever.is_fitted,
+                    'n_products': len(self.product_df) if self.product_df is not None else 0
+                }
+                self.results_manager.save_model(self.retriever, model_name, model_metadata)
+            
+            # Save metrics
+            self.results_manager.save_metrics(results, "metrics")
+            
+            # Save search results
+            if self.query_df is not None:
+                self.results_manager.save_search_results(self.query_df, "search_results")
+            
+            # Save configuration
+            config_dict = config.to_dict()
+            self.results_manager.save_config(config_dict, "config")
+            
+            # Save experiment summary
+            summary = {
+                'retriever_type': self.retriever.__class__.__name__ if self.retriever else None,
+                'n_queries': len(self.query_df) if self.query_df is not None else 0,
+                'n_products': len(self.product_df) if self.product_df is not None else 0,
+                'n_labels': len(self.label_df) if self.label_df is not None else 0,
+                'key_metrics': {
+                    'map@10': results.get('standard', {}).get('map@10', None),
+                    'weighted_map@10': results.get('weighted', {}).get('weighted_map@10', None),
+                    'ndcg@10': results.get('weighted', {}).get('ndcg@10', None)
+                }
+            }
+            self.results_manager.save_experiment_summary(summary)
+            
+            logger.info(f"Results saved to: {self.results_manager.experiment_dir}")
+            
+        except Exception as e:
+            logger.error(f"Error saving pipeline results: {e}")
+            # Don't raise exception to avoid breaking the pipeline
