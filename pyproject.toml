@@ -1,0 +1,27 @@
+[project]
+name = "ecommerce-search-engine"
+version = "0.2.0"
+description = "Advanced E-commerce Search Engine with Multiple Retrieval Strategies"
+authors = [{ name = "Laren Osorio", email = "losoriot@uni.pe" }]
+requires-python = ">=3.9"
+readme = "README.md"
+
+
+dependencies = [
+    "torch",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "sentence-transformers",
+    "rank-bm25",
+    "tqdm",
+    "pydantic",
+    "loguru",
+    "jupyter",
+    "ipykernel",
+    "matplotlib",
+    "seaborn"
+]
+
+[tool.uv]
+managed = true
