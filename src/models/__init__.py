@@ -28,31 +28,31 @@ except ImportError:
 from .hybrid import HybridRetriever
 
 try:
-    from .ollama_retriever import OllamaRetriever
+    from .ollama import OllamaRetriever
     OLLAMA_AVAILABLE = True
 except ImportError:
     OLLAMA_AVAILABLE = False
 
 try:
-    from .crossencoder_retriever import CrossEncoderRetriever
+    from .crossencoder import CrossEncoderRetriever
     CROSSENCODER_AVAILABLE = True
 except ImportError:
     CROSSENCODER_AVAILABLE = False
 
 try:
-    from .colbert_retriever import ColBERTRetriever
+    from .colbert import ColBERTRetriever
     COLBERT_AVAILABLE = True
 except ImportError:
     COLBERT_AVAILABLE = False
 
 try:
-    from .dpr_retriever import DPRRetriever
+    from .dpr import DPRRetriever
     DPR_AVAILABLE = True
 except ImportError:
     DPR_AVAILABLE = False
 
 try:
-    from .bert_retriever import BERTRetriever
+    from .bert import BERTRetriever
     BERT_AVAILABLE = True
 except ImportError:
     BERT_AVAILABLE = False

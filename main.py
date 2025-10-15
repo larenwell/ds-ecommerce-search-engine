@@ -25,6 +25,7 @@ from datetime import datetime
 sys.path.append(str(Path(__file__).parent))
 
 from src import SearchPipeline, TFIDFRetriever, BM25Retriever, SemanticRetriever, HybridRetriever
+from src.models import CrossEncoderRetriever, ColBERTRetriever, DPRRetriever, BERTRetriever, OllamaRetriever
 from src.config import config
 
 
@@ -35,6 +36,7 @@ def run_single_method(method_name: str, save_results: bool = True):
     
     # Define method configurations
     method_configs = {
+        # Original methods
         'tfidf': (TFIDFRetriever, {
             'top_k': 10,
             'ngram_range': (1, 2),
@@ -58,6 +60,41 @@ def run_single_method(method_name: str, save_results: bool = True):
             'tfidf_weight': 0.2,
             'bm25_weight': 0.4,
             'semantic_weight': 0.4
+        }),
+        # Advanced methods
+        'crossencoder': (CrossEncoderRetriever, {
+            'top_k': 10,
+            'model_name': 'cross-encoder/ms-marco-MiniLM-L-6-v2',
+            'candidate_k': 50,
+            'batch_size': 32
+        }),
+        'colbert': (ColBERTRetriever, {
+            'top_k': 10,
+            'model_name': 'bert-base-uncased',
+            'dim': 128,
+            'max_length': 256
+        }),
+        'dpr': (DPRRetriever, {
+            'top_k': 10,
+            'question_encoder': 'facebook/dpr-question_encoder-single-nq-base',
+            'ctx_encoder': 'facebook/dpr-ctx_encoder-single-nq-base',
+            'batch_size': 32,
+            'use_faiss': True
+        }),
+        'bert': (BERTRetriever, {
+            'top_k': 10,
+            'model_name': 'bert-base-uncased',
+            'num_labels': 2,
+            'candidate_k': 50,
+            'max_length': 512
+        }),
+        'ollama': (OllamaRetriever, {
+            'top_k': 10,
+            'model': 'llama3',
+            'strategy': 'rerank',
+            'candidate_k': 50,
+            'temperature': 0.1,
+            'max_tokens': 1000
         })
     }
     
@@ -128,6 +165,7 @@ def run_comprehensive_experiment():
     
     # Define experiments to run
     experiments = [
+        # Original methods
         ('tfidf', TFIDFRetriever, {
             'top_k': 10,
             'ngram_range': (1, 2),
@@ -151,6 +189,41 @@ def run_comprehensive_experiment():
             'tfidf_weight': 0.2,
             'bm25_weight': 0.4,
             'semantic_weight': 0.4
+        }),
+        # Advanced methods
+        ('crossencoder', CrossEncoderRetriever, {
+            'top_k': 10,
+            'model_name': 'cross-encoder/ms-marco-MiniLM-L-6-v2',
+            'candidate_k': 50,
+            'batch_size': 32
+        }),
+        ('colbert', ColBERTRetriever, {
+            'top_k': 10,
+            'model_name': 'bert-base-uncased',
+            'dim': 128,
+            'max_length': 256
+        }),
+        ('dpr', DPRRetriever, {
+            'top_k': 10,
+            'question_encoder': 'facebook/dpr-question_encoder-single-nq-base',
+            'ctx_encoder': 'facebook/dpr-ctx_encoder-single-nq-base',
+            'batch_size': 32,
+            'use_faiss': True
+        }),
+        ('bert', BERTRetriever, {
+            'top_k': 10,
+            'model_name': 'bert-base-uncased',
+            'num_labels': 2,
+            'candidate_k': 50,
+            'max_length': 512
+        }),
+        ('ollama', OllamaRetriever, {
+            'top_k': 10,
+            'model': 'llama3',
+            'strategy': 'rerank',
+            'candidate_k': 50,
+            'temperature': 0.1,
+            'max_tokens': 1000
         })
     ]
     
@@ -570,7 +643,7 @@ Examples:
     method_group = parser.add_mutually_exclusive_group(required=False)
     method_group.add_argument(
         '--method',
-        choices=['tfidf', 'bm25', 'semantic', 'hybrid', 'all'],
+            choices=['tfidf', 'bm25', 'semantic', 'hybrid', 'crossencoder', 'colbert', 'dpr', 'bert', 'ollama', 'all'],
         help='Retrieval method to run (or "all" for all methods)'
     )
     method_group.add_argument(
