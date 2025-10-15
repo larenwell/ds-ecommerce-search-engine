@@ -30,25 +30,27 @@ class ResultsManager:
     and analysis of different experiments.
     """
     
-    def __init__(self, base_dir: Path = None):
+    def __init__(self, base_dir: Path = None, create_dirs: bool = True):
         """
         Initialize results manager.
         
         Args:
             base_dir: Base directory for results (default: results/)
+            create_dirs: Whether to create directory structure immediately
         """
         self.base_dir = base_dir or Path("results")
         self.experiment_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.experiment_dir = self.base_dir / f"experiment_{self.experiment_id}"
         
-        # Create experiment directory structure
-        self._create_experiment_structure()
-        
-        # Setup logging for this experiment
-        from .config import config
-        config.setup_logging(experiment_dir=self.experiment_dir)
-        
-        logger.info(f"ResultsManager initialized: {self.experiment_dir}")
+        # Create experiment directory structure only if requested
+        if create_dirs:
+            self._create_experiment_structure()
+            # Setup logging for this experiment
+            from .config import config
+            config.setup_logging(experiment_dir=self.experiment_dir)
+            logger.info(f"ResultsManager initialized: {self.experiment_dir}")
+        else:
+            logger.info(f"ResultsManager initialized (lazy mode): {self.experiment_dir}")
     
     def _create_experiment_structure(self):
         """Create directory structure for current experiment."""
@@ -64,6 +66,14 @@ class ResultsManager:
         for dir_name in dirs:
             (self.experiment_dir / dir_name).mkdir(parents=True, exist_ok=True)
     
+    def _ensure_experiment_structure(self):
+        """Ensure experiment directory structure exists (lazy creation)."""
+        if not self.experiment_dir.exists():
+            self._create_experiment_structure()
+            # Setup logging for this experiment
+            from .config import config
+            config.setup_logging(experiment_dir=self.experiment_dir)
+    
     def save_model(self, model: Any, model_name: str, metadata: Dict = None) -> Path:
         """
         Save trained model with metadata.
@@ -76,6 +86,8 @@ class ResultsManager:
         Returns:
             Path to saved model file
         """
+        self._ensure_experiment_structure()
+        
         model_path = self.experiment_dir / "models" / f"{model_name}.pkl"
         
         try:
@@ -126,6 +138,8 @@ class ResultsManager:
         Returns:
             Path to saved metrics file
         """
+        self._ensure_experiment_structure()
+        
         # Save as JSON (preserves structure)
         json_path = self.experiment_dir / "metrics" / f"{metrics_name}.json"
         with open(json_path, 'w') as f:
@@ -171,6 +185,8 @@ class ResultsManager:
         Returns:
             Path to saved results file
         """
+        self._ensure_experiment_structure()
+        
         results_path = self.experiment_dir / "search_results" / f"{results_name}.csv"
         
         try:
@@ -192,6 +208,8 @@ class ResultsManager:
         Returns:
             Path to saved config file
         """
+        self._ensure_experiment_structure()
+        
         config_path = self.experiment_dir / "configs" / f"{config_name}.json"
         
         try:
@@ -213,6 +231,8 @@ class ResultsManager:
         Returns:
             Path to saved summary file
         """
+        self._ensure_experiment_structure()
+        
         summary_path = self.experiment_dir / "experiment_summary.json"
         
         # Add experiment metadata
@@ -332,5 +352,5 @@ class ResultsManager:
                 logger.error(f"Error removing experiment {exp_path}: {e}")
 
 
-# Global results manager instance
-results_manager = ResultsManager()
+# Global results manager instance (commented out to avoid auto-creation)
+# results_manager = ResultsManager()

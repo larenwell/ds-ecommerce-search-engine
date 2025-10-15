@@ -55,16 +55,21 @@ data/
 logs/
 *.log
 
-# Experiment results - only include configs and metrics
+# Experiment results - only include configs and metrics from each method
+# Exclude everything from experiments first
 results/experiment_*/
-!results/experiment_*/configs/
-!results/experiment_*/metrics/
-# Exclude everything else from experiments
-results/experiment_*/search_results/
-results/experiment_*/logs/
-results/experiment_*/models/
-results/experiment_*/plots/
-results/experiment_*/experiment_summary.json
+# Then include specific files we want
+!results/experiment_*/bm25/configs/
+!results/experiment_*/bm25/metrics/
+!results/experiment_*/tfidf/configs/
+!results/experiment_*/tfidf/metrics/
+!results/experiment_*/semantic/configs/
+!results/experiment_*/semantic/metrics/
+!results/experiment_*/hybrid/configs/
+!results/experiment_*/hybrid/metrics/
+!results/experiment_*/method_comparison.csv
+!results/experiment_*/comprehensive_results.json
+!results/experiment_*/experiment_report.md
 
 # Model files
 *.pt

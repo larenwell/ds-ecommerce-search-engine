@@ -1,0 +1,50 @@
+{
+  "data": {
+    "data_dir": "data",
+    "query_file": "query.csv",
+    "product_file": "product.csv",
+    "label_file": "label.csv",
+    "separator": "\t"
+  },
+  "retriever": {
+    "tfidf_max_features": 10000,
+    "tfidf_ngram_range": [
+      1,
+      2
+    ],
+    "tfidf_min_df": 2,
+    "tfidf_max_df": 0.8,
+    "bm25_k1": 1.5,
+    "bm25_b": 0.75,
+    "semantic_model_name": "all-MiniLM-L6-v2",
+    "semantic_batch_size": 32,
+    "semantic_device": "auto",
+    "top_k": 10,
+    "hybrid_tfidf_weight": 0.3,
+    "hybrid_bm25_weight": 0.3,
+    "hybrid_semantic_weight": 0.4,
+    "hybrid_retrieval_k": 50
+  },
+  "evaluation": {
+    "k_values": [
+      5,
+      10,
+      20
+    ],
+    "exact_weight": 1.0,
+    "partial_weight": 0.5,
+    "irrelevant_weight": 0.0,
+    "label_mapping": {
+      "Exact": 1.0,
+      "Partial": 0.5,
+      "Irrelevant": 0.0
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "log_file": "logs/search_engine.log",
+    "rotation": "500 MB",
+    "retention": "10 days",
+    "format": "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan> - <level>{message}</level>"
+  }
+}

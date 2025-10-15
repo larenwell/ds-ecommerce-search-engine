@@ -64,8 +64,8 @@ class SearchPipeline:
         self.metrics_calculator = MetricsCalculator()
         self.weighted_metrics_calculator = WeightedMetricsCalculator()
         
-        # Results manager
-        self.results_manager = ResultsManager() if save_results else None
+        # Results manager (only initialize if saving results)
+        self.results_manager = ResultsManager(create_dirs=False) if save_results else None
         
         logger.info(f"SearchPipeline initialized with data_dir: {self.data_dir}")
     
