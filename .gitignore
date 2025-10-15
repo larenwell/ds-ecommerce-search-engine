@@ -51,8 +51,7 @@ data/
 *.tsv
 *.parquet
 
-# Results
-results/
+# Results (exclude large files but keep configs and metrics)
 outputs/
 
 # Logs (only root level logs, experiment logs are tracked)
